@@ -1,8 +1,8 @@
-package main
+package test
 
 import ("fmt"
 	"GoStudyDemo/Tools/orm"
-	_ "GoStudyDemo/src/github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	//"time"
 )
 
