@@ -1,4 +1,4 @@
-package test
+package main
 
 import ("fmt"
 	"GoStudyDemo/Tools/orm"
@@ -14,18 +14,27 @@ type UserInfo struct{
 	Created string `name:"created"`
 }
 func main() {
-	ui := UserInfo{UserName:"CHAIN", DepartName:"TEST", Created:"2018-09-16"}
+	//ui := UserInfo{UserName:"CHAIN", DepartName:"TEST", Created:"2018-09-16"}
 	orm.RegModel(new(UserInfo))
-	db, err := orm.NewDb("mysql", "menglihuan:297234@tcp(192.168.0.102:3306)/pwdstore?charset=utf8")
+	db, err := orm.NewDb("mysql", "menglihuan:297234@tcp(127.0.0.1:3306)/pwdstore?charset=utf8")
 	if err != nil {
 		fmt.Println("打开SQL时出错:", err.Error())
 		return
 	}
 	defer db.Close()
 
-	//插入测试
-	err = db.Insert(&ui)
-	if err != nil {
-		fmt.Println("插入时错误:", err.Error())
+	////插入测试
+	//err = db.Insert(&ui)
+	//if err != nil {
+	//	fmt.Println("插入时错误:", err.Error())
+	//}
+
+	//查询测试
+	res, err := db.From("userinfo").
+		Select("username", "departname", "uid").
+		Where("username", "CHAIN").Get()
+	if err != nil{
+		fmt.Println("err: ", err.Error())
 	}
+	fmt.Println(res)
 }

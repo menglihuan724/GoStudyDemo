@@ -5,6 +5,7 @@ import    ( "fmt"
 	"errors"
 	"strings"
 	"reflect"
+	"database/sql"
 )
 
 /*table entity*/
@@ -148,3 +149,27 @@ func generateInsertSql(model interface{})(string, []interface{}, *Table, error){
 	return strSql, params, tbInfo, nil
 }
 
+/*
+  设置自增长字段的值
+*/
+func setAuto(result sql.Result, tbInfo *Table)(err error){
+	defer func(){
+		if e := recover(); e != nil{
+			err = e.(error)
+		}
+	}()
+	id, err := result.LastInsertId()
+	if id == 0{
+		return
+	}
+	if err != nil{
+		return
+	}
+	for _, v := range tbInfo.Fields{
+		if v.IsAutoGenerate && v.Value.CanSet(){
+			v.Value.SetInt(id)
+			break
+		}
+	}
+	return
+}
