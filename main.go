@@ -32,9 +32,10 @@ func main() {
 	//查询测试
 	res, err := db.From("userinfo").
 		Select("username", "departname", "uid").
-		Where("username", "CHAIN").Get()
+		Where("username", "chain").Get()
 	if err != nil{
 		fmt.Println("err: ", err.Error())
 	}
 	fmt.Println(res)
 }
+
