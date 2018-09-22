@@ -40,10 +40,14 @@ func main() {
 	}
 	fmt.Println(res)
 
-	ui.UserName = "BBBB"
+	ui.UserName = "menglihuan"
+	ui.Uid=1
+	fmt.Println(ui)
 	err = db.Update(ui)
 	if err != nil {
 		fmt.Println("修改时错误:", err.Error())
 	}
+
+	db.Delete(ui)
 }
 

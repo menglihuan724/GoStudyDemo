@@ -70,16 +70,29 @@ func (this *MysqlDB)Insert(model interface{}) error{
 }
 /*修改函数*/
 func (this *MysqlDB)Update(model interface{}) error{
-	strsql, params, tbInfo, err := generateInsertSql(model)
+	strsql, params,  err := generateUpateSql(model)
 	if err != nil{
 		return err
 	}
-	var result sql.Result
-	result, err = this.Exec(strsql, params...)
+	_, err = this.Exec(strsql, params...)
 	if err != nil{
 		return err
 	}
-	setAuto(result, tbInfo)
+	return  nil
+}
+
+/*
+  删除函数
+*/
+func (this *MysqlDB)Delete(model interface{}) error{
+	strSql, params, err := generateDeleteSql(model)
+	if err != nil{
+		return err
+	}
+	_, err = this.Exec(strSql, params...)
+	if err != nil{
+		return err
+	}
 	return nil
 }
 
@@ -95,6 +108,9 @@ func (msqlDB *MysqlDB)Select(args ...string)*MysqlDB  {
 	}
 	return  msqlDB
 }
+/*delete*/
+
+
 //获取参数
 func (this MysqlDB)getValues()[]interface{}{
 	return this.values

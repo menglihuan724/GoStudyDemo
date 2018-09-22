@@ -149,13 +149,13 @@ func generateInsertSql(model interface{})(string, []interface{}, *Table, error){
 	return strSql, params, tbInfo, nil
 }
 //拼接更新sql
-func generateUpateSql(model interface{})(string,[]interface{},*Table,error){
+func generateUpateSql(model interface{})(string,[]interface{},error){
 	tableInfo,err:=getTableInfo(model)
 	if err !=nil{
-		return "",nil,nil,err
+		return "",nil,err
 	}
 	if len(tableInfo.Fields)==0{
-		return  "",nil,nil,errors.New(tableInfo.Name+"结构体中没有字段")
+		return  "",nil,errors.New(tableInfo.Name+"结构体中没有字段")
 	}
 	strSql:=" update "+tableInfo.Name+" set "
 	strFileds:=""
@@ -163,7 +163,7 @@ func generateUpateSql(model interface{})(string,[]interface{},*Table,error){
 	var p interface{}
 	var params []interface{}
 	for _, v := range tableInfo.Fields{
-		if v.IsAutoGenerate {
+		if v.IsAutoGenerate && !v.IsPrimarykey {
 			continue
 		}
 		if v.IsPrimarykey{
@@ -171,21 +171,42 @@ func generateUpateSql(model interface{})(string,[]interface{},*Table,error){
 			p = v.Value.Interface()
 			continue
 		}
-		strFileds += v.Name + "=?, "
+		strFileds += v.Name + "=?,"
 		params = append(params, v.Value.Interface())
 	}
 	params=append(params,p)
 	if strFileds==""{
-		return "",nil,nil,errors.New(tableInfo.Name+"结构体中没有字段或全为自增字段")
+		return "",nil,errors.New(tableInfo.Name+"结构体中没有字段或全为自增字段")
 	}
 	strFileds=strings.TrimRight(strFileds,",")
 	strSql+=strFileds+" where "+strWhere
-	return  strSql,params,tableInfo,nil
+	fmt.Println("update sql: ", strSql)
+	fmt.Println("update params: ", params)
+	return  strSql,params,nil
 }
-/*删除sql拼接*/
-//func delteSql(model interface{})(string,[]interface{},*Table,error){
-//
-//}
+/*
+  自动生成删除的sql语句，以主键为删除条件
+*/
+func generateDeleteSql(model interface{})(string, []interface{}, error){
+	//获取表信息
+	tbInfo, err := getTableInfo(model)
+	if err != nil{
+		return "", nil, err
+	}
+	//根据字段信息拼Sql语句，以及参数值
+	strSql := "delete from " + tbInfo.Name + " where "
+	var idVal interface{}
+	for _, v := range tbInfo.Fields{
+		if v.IsPrimarykey{
+			strSql += v.Name + "=?"
+			idVal = v.Value.Interface()
+		}
+	}
+	params := []interface{}{idVal}
+	fmt.Println("update sql: ", strSql)
+	fmt.Println("update params: ", params)
+	return strSql, params, nil
+}
 
 /*
   设置自增长字段的值
