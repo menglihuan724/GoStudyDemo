@@ -68,6 +68,21 @@ func (this *MysqlDB)Insert(model interface{}) error{
 	setAuto(result, tbInfo)
 	return nil
 }
+/*修改函数*/
+func (this *MysqlDB)Update(model interface{}) error{
+	strsql, params, tbInfo, err := generateInsertSql(model)
+	if err != nil{
+		return err
+	}
+	var result sql.Result
+	result, err = this.Exec(strsql, params...)
+	if err != nil{
+		return err
+	}
+	setAuto(result, tbInfo)
+	return nil
+}
+
 /*设置查询表名*/
 func(msqlDB *MysqlDB) From(name string)*MysqlDB{
 	msqlDB.from=name

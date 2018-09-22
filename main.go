@@ -4,6 +4,8 @@ import ("fmt"
 	"GoStudyDemo/Tools/orm"
 	_ "github.com/go-sql-driver/mysql"
 	//"time"
+	//"log"
+	//"strings"
 )
 
 type UserInfo struct{
@@ -14,9 +16,9 @@ type UserInfo struct{
 	Created string `name:"created"`
 }
 func main() {
-	//ui := UserInfo{UserName:"CHAIN", DepartName:"TEST", Created:"2018-09-16"}
+	ui := UserInfo{UserName:"CHAIN", DepartName:"TEST", Created:"2018-09-16"}
 	orm.RegModel(new(UserInfo))
-	db, err := orm.NewDb("mysql", "menglihuan:297234@tcp(127.0.0.1:3306)/pwdstore?charset=utf8")
+	db, err := orm.NewDb("mysql", "menglihuan:297234@tcp(192.168.42.116:3306)/pwdstore?charset=utf8")
 	if err != nil {
 		fmt.Println("打开SQL时出错:", err.Error())
 		return
@@ -37,4 +39,10 @@ func main() {
 		fmt.Println("err: ", err.Error())
 	}
 	fmt.Println(res)
+
+	ui.UserName = "BBBB"
+	err = db.Update(ui)
+	if err != nil {
+		fmt.Println("修改时错误:", err.Error())
+	}
 }

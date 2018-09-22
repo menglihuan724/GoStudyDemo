@@ -49,7 +49,7 @@ func RegModel(model interface{})  {
 	tbInfo,_:=getTableInfo(model)
 	modelMapping[tbInfo.Name]=ModelInfo{TbName:tbInfo.Name,Model:model}
 }
-
+//获取表信息
 func getTableInfo(model interface{})(tabinfo *Table,err error) {
 
 	defer func() {
@@ -114,7 +114,7 @@ func getTableInfo(model interface{})(tabinfo *Table,err error) {
 	}
 	return
 }
-
+//拼接插入sql
 func generateInsertSql(model interface{})(string, []interface{}, *Table, error){
 	//获取表信息
 	tbInfo, err := getTableInfo(model)
@@ -148,6 +148,44 @@ func generateInsertSql(model interface{})(string, []interface{}, *Table, error){
 	fmt.Println("params: ",params)
 	return strSql, params, tbInfo, nil
 }
+//拼接更新sql
+func generateUpateSql(model interface{})(string,[]interface{},*Table,error){
+	tableInfo,err:=getTableInfo(model)
+	if err !=nil{
+		return "",nil,nil,err
+	}
+	if len(tableInfo.Fields)==0{
+		return  "",nil,nil,errors.New(tableInfo.Name+"结构体中没有字段")
+	}
+	strSql:=" update "+tableInfo.Name+" set "
+	strFileds:=""
+	strWhere:=""
+	var p interface{}
+	var params []interface{}
+	for _, v := range tableInfo.Fields{
+		if v.IsAutoGenerate {
+			continue
+		}
+		if v.IsPrimarykey{
+			strWhere += v.Name + "=?"
+			p = v.Value.Interface()
+			continue
+		}
+		strFileds += v.Name + "=?, "
+		params = append(params, v.Value.Interface())
+	}
+	params=append(params,p)
+	if strFileds==""{
+		return "",nil,nil,errors.New(tableInfo.Name+"结构体中没有字段或全为自增字段")
+	}
+	strFileds=strings.TrimRight(strFileds,",")
+	strSql+=strFileds+" where "+strWhere
+	return  strSql,params,tableInfo,nil
+}
+/*删除sql拼接*/
+//func delteSql(model interface{})(string,[]interface{},*Table,error){
+//
+//}
 
 /*
   设置自增长字段的值
